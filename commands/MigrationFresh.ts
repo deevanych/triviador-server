@@ -1,7 +1,9 @@
-import { BaseCommand } from '@adonisjs/core/build/standalone'
+import { BaseCommand, flags } from '@adonisjs/core/build/standalone'
 import execa from 'execa'
 
 export default class MigrationFresh extends BaseCommand {
+  @flags.boolean()
+  public seed: boolean = false
 
   /**
    * Command name is used to run the command
@@ -32,5 +34,10 @@ export default class MigrationFresh extends BaseCommand {
     console.log('Rollback all tables')
     await execa.node('ace',['migration:run'])
     console.log('Migrated all tables')
+
+    if (this.seed) {
+      await execa.node('ace',['db:seed'])
+      console.log('All data has been seeded')
+    }
   }
 }

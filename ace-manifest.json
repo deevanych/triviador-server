@@ -10,7 +10,13 @@
       "description": "",
       "args": [],
       "aliases": [],
-      "flags": []
+      "flags": [
+        {
+          "name": "seed",
+          "propertyName": "seed",
+          "type": "boolean"
+        }
+      ]
     },
     "dump:rcfile": {
       "settings": {},
