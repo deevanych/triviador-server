@@ -2,7 +2,8 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
 
 export default class UsersController {
-  public async index ({}: HttpContextContract) {
+  public async index ({}: HttpContextContract): Promise<User[]> {
+    return await User.all()
   }
 
   public async create ({}: HttpContextContract) {
@@ -12,7 +13,7 @@ export default class UsersController {
   }
 
   public async show ({ request }): Promise<User | null> {
-    return User.findOrFail(request.param('id', 1));
+    return User.findOrFail(request.param('id', 1))
   }
 
   public async edit ({}: HttpContextContract) {
