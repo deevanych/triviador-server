@@ -5,13 +5,16 @@ export default class User extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
-  @column({ })
+  @column()
+  public nickname: string
+
+  @column({ serializeAs: null })
   public email: string
 
   @column()
-  public rating: number
+  public avatar_url: string
 
-  @column()
+  @column({ serializeAs: null })
   public password: string
 
   @column.dateTime({ autoCreate: true })
