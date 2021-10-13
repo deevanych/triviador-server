@@ -3,7 +3,9 @@ import User from 'App/Models/User'
 
 export default class UsersController {
   public async index ({}: HttpContextContract): Promise<User[]> {
-    return await User.all()
+    const users = await User.query().preload('matches').exec()
+
+    return users.sort((a, b) => b.rating - a.rating)
   }
 
   public async create ({}: HttpContextContract) {
