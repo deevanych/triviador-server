@@ -12,8 +12,8 @@ export default class UsersController {
   public async store ({}: HttpContextContract) {
   }
 
-  public async show ({ request }): Promise<User | null> {
-    return User.findOrFail(request.param('id', 1))
+  public async show ({ request }) {
+    return await User.findOrFail(request.param('id'))
   }
 
   public async edit ({}: HttpContextContract) {
