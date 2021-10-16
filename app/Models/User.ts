@@ -11,7 +11,7 @@ export interface UserInterface {
   email: string,
   avatar_url: string,
   password: string,
-  readonly rating: number,
+  readonly rating?: number,
 }
 
 export default class User extends BaseModel implements UserInterface {
