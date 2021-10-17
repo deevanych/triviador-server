@@ -15,4 +15,8 @@ Ws.io
     socket.on('disconnect', () => {
       Ws.io.emit('serverInfo', getData(Ws.io.engine))
     })
+
+    socket.on('findGame', () => {
+      socket.join('findGameRoom')
+    })
   })
