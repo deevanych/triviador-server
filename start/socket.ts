@@ -7,7 +7,7 @@ import { Socket } from 'socket.io'
 Ws.boot()
 
 export interface SocketExtended extends Socket {
-  user?: User
+  user: User
 }
 
 const activeUsers: {[key: string]: string} = {}
@@ -45,6 +45,18 @@ Ws.io
         socket.leave(findGameRoomTitle)
         socket.emit('gameSearchStopped')
         Ws.io.emit('serverInfo', getData(Ws.io))
+      })
+
+      socket.on('getMatchData', () => {
+        console.log(213)
+        const match = socket.user.activeMatch
+        console.log(match)
+        if (typeof match === 'undefined') {
+          socket.emit('goToLobby')
+          return false
+        }
+
+        socket.emit('matchData', match)
       })
     }).catch(() => {
       socket.emit('userNotFound')
