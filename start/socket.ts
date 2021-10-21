@@ -1,7 +1,14 @@
 import Ws from 'App/Services/Ws'
+import { findGameRoomTitle } from 'App/Services/MatchService'
+import { getUserByToken } from 'App/Services/UserService'
+import User from 'App/Models/User'
+import { Socket } from 'socket.io'
+
 Ws.boot()
 
-const findGameRoomTitle = 'findGameRoom'
+export interface SocketExtended extends Socket {
+  user?: User
+}
 
 const activeUsers: {[key: string]: string} = {}
 
@@ -13,7 +20,9 @@ const getData = (io) => {
 }
 
 Ws.io
-  .on('connection', (socket) => {
+  .on('connection', (socket: SocketExtended) => {
+    Ws.io.emit('serverInfo', getData(Ws.io))
+
     const token = socket.handshake.auth.token
 
     if (token !== null && activeUsers.hasOwnProperty(token)) {
@@ -24,23 +33,25 @@ Ws.io
     if (!activeUsers.hasOwnProperty(token))
       activeUsers[token] = ''
 
-    Ws.io.emit('serverInfo', getData(Ws.io))
+    getUserByToken(token).then((user: User) => {
+      socket.user = user
+      socket.on('startGameSearch', () => {
+        socket.join(findGameRoomTitle)
+        socket.emit('gameSearchStarted')
+        Ws.io.emit('serverInfo', getData(Ws.io))
+      })
+
+      socket.on('stopGameSearch', () => {
+        socket.leave(findGameRoomTitle)
+        socket.emit('gameSearchStopped')
+        Ws.io.emit('serverInfo', getData(Ws.io))
+      })
+    }).catch(() => {
+      socket.emit('userNotFound')
+    })
 
     socket.on('disconnect', () => {
       delete activeUsers[token]
-      console.log(activeUsers)
-      Ws.io.emit('serverInfo', getData(Ws.io))
-    })
-
-    socket.on('startGameSearch', () => {
-      socket.join(findGameRoomTitle)
-      socket.emit('gameSearchStarted')
-      Ws.io.emit('serverInfo', getData(Ws.io))
-    })
-
-    socket.on('stopGameSearch', () => {
-      socket.leave(findGameRoomTitle)
-      socket.emit('gameSearchStopped')
       Ws.io.emit('serverInfo', getData(Ws.io))
     })
   })

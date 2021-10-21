@@ -15,7 +15,8 @@
   },
   "preloads": [
     "./start/routes",
-    "./start/kernel"
+    "./start/kernel",
+    "./start/matchmaking"
   ],
   "providers": [
     "./providers/AppProvider",
