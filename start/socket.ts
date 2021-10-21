@@ -3,6 +3,8 @@ Ws.boot()
 
 const findGameRoomTitle = 'findGameRoom'
 
+const activeUsers: {[key: string]: string} = {}
+
 const getData = (io) => {
   return {
     playersCount: io.engine.clientsCount,
@@ -12,9 +14,21 @@ const getData = (io) => {
 
 Ws.io
   .on('connection', (socket) => {
+    const token = socket.handshake.auth.token
+
+    if (token !== null && activeUsers.hasOwnProperty(token)) {
+      socket.emit('gameCopyAlreadyOpen')
+      socket.disconnect()
+    }
+
+    if (!activeUsers.hasOwnProperty(token))
+      activeUsers[token] = ''
+
     Ws.io.emit('serverInfo', getData(Ws.io))
 
     socket.on('disconnect', () => {
+      delete activeUsers[token]
+      console.log(activeUsers)
       Ws.io.emit('serverInfo', getData(Ws.io))
     })
 
