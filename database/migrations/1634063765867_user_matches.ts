@@ -19,6 +19,7 @@ export default class UserMatch extends BaseSchema {
         .onDelete('CASCADE')
       table.unique(['user_id', 'match_id'])
       table.integer('amount', 2).defaultTo(DRAW_POINTS_AMOUNT)
+      table.boolean('in_match').defaultTo(true)
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
     })
