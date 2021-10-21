@@ -18,13 +18,15 @@ Ws.io
       Ws.io.emit('serverInfo', getData(Ws.io))
     })
 
-    socket.on('findGame', () => {
+    socket.on('startGameSearch', () => {
       socket.join(findGameRoomTitle)
+      socket.emit('gameSearchStarted')
       Ws.io.emit('serverInfo', getData(Ws.io))
     })
 
-    socket.on('stopFindGame', () => {
+    socket.on('stopGameSearch', () => {
       socket.leave(findGameRoomTitle)
+      socket.emit('gameSearchStopped')
       Ws.io.emit('serverInfo', getData(Ws.io))
     })
   })
