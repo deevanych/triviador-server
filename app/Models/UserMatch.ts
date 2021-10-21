@@ -30,6 +30,9 @@ export default class UserMatch extends BaseModel implements UserMatchInterface {
   @column()
   public amount: number
 
+  @column()
+  public inMatch: boolean
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

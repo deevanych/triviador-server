@@ -45,7 +45,7 @@ export default class User extends BaseModel implements UserInterface {
 
   @manyToMany(() => Match, {
     pivotTable: 'user_matches',
-    pivotColumns: ['amount'],
+    pivotColumns: ['amount', 'in_match'],
     serializeAs: null
   })
   public matches: ManyToMany<typeof Match>
@@ -55,5 +55,10 @@ export default class User extends BaseModel implements UserInterface {
     return this.matches.reduce((sum: number, match: Match) => {
       return sum + match.$extras.pivot_amount
     }, INITIAL_RATING)
+  }
+
+  @computed()
+  public get activeMatch(): Match | undefined {
+    return this.matches.find((match: Match): boolean => match.$extras.pivot_inMatch)
   }
 }
