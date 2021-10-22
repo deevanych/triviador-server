@@ -5,6 +5,10 @@ import Match from 'App/Models/Match'
 const DEFAULT_USER_AVATAR = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_640.png'
 const INITIAL_RATING = 100
 
+// todo
+// change matches getters
+// change active match getter
+
 export interface UserInterface {
   id?: number,
   nickname: string,
@@ -59,6 +63,19 @@ export default class User extends BaseModel implements UserInterface {
 
   @computed()
   public get activeMatch(): Match | undefined {
-    return this.matches.find((match: Match): boolean => match.$extras.pivot_inMatch)
+    return this.matches.find((match: Match): boolean => match.$extras.pivot_in_match)
+  }
+
+  @computed()
+  public get isInMatch(): boolean {
+    return typeof this.activeMatch !== 'undefined'
+  }
+
+  public leaveMatch(): void {
+    this.activeMatch?.related('users').sync({
+      [this.id]: {
+        in_match: false,
+      },
+    })
   }
 }

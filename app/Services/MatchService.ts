@@ -17,7 +17,6 @@ export class MatchService {
       })
 
       if (sortedSockets.length >= ratingMatchPlayersCount) {
-        console.log(sortedSockets.length)
         const readyUsers = sortedSockets.splice(0, ratingMatchPlayersCount)
         new Match().save().then((match) => {
           readyUsers.forEach((socket) => {

@@ -3,6 +3,7 @@ import { findGameRoomTitle } from 'App/Services/MatchService'
 import { getUserByToken } from 'App/Services/UserService'
 import User from 'App/Models/User'
 import { Socket } from 'socket.io'
+import Match from 'App/Models/Match'
 
 Ws.boot()
 
@@ -35,6 +36,12 @@ Ws.io
 
     getUserByToken(token).then((user: User) => {
       socket.user = user
+
+      if (user.isInMatch) {
+        const match = socket.user.activeMatch
+        socket.emit('goToActiveMatch', match)
+      }
+
       socket.on('startGameSearch', () => {
         socket.join(findGameRoomTitle)
         socket.emit('gameSearchStarted')
@@ -47,9 +54,8 @@ Ws.io
         Ws.io.emit('serverInfo', getData(Ws.io))
       })
 
-      socket.on('getMatchData', () => {
-        console.log(213)
-        const match = socket.user.activeMatch
+      socket.on('getMatchData', async () => {
+        const match = await socket.user.activeMatch
         console.log(match)
         if (typeof match === 'undefined') {
           socket.emit('goToLobby')
@@ -57,6 +63,10 @@ Ws.io
         }
 
         socket.emit('matchData', match)
+      })
+
+      socket.on('leaveMatch', () => {
+        user.leaveMatch()
       })
     }).catch(() => {
       socket.emit('userNotFound')
