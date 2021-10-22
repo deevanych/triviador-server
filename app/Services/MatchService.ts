@@ -3,7 +3,7 @@ import { SocketExtended } from '../../start/socket'
 import Match from 'App/Models/Match'
 
 export const findGameRoomTitle = 'findGameRoom'
-const ratingMatchPlayersCount = 3
+const ratingMatchPlayersCount = 2
 
 export class MatchService {
   public static matchmakingSelection = () => {
