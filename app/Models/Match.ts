@@ -1,19 +1,11 @@
 import { DateTime } from 'luxon'
-import { afterFetch, afterFind, BaseModel, column, computed, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { afterFind, BaseModel, column, computed, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import User from 'App/Models/User'
 
 export default class Match extends BaseModel {
   @afterFind()
   public static async afterFindHook(match: Match) {
     await match.load('users')
-  }
-
-  @afterFetch()
-  public static async afterFetchHook(matches: Match[]) {
-    await Promise.all(matches.map((match) => {
-        return match.load('users')
-      })
-    )
   }
 
   @column({ isPrimary: true })
