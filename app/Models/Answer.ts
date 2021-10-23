@@ -12,6 +12,9 @@ export default class Answer extends BaseModel {
   public updatedAt: DateTime
 
   @column()
+  public questionId: number
+
+  @column()
   public text: string
 
   @column()

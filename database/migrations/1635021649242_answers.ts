@@ -11,7 +11,7 @@ export default class Answers extends BaseSchema {
       table
         .integer('question_id')
         .unsigned()
-        .references('question.id')
+        .references('questions.id')
         .onDelete('CASCADE')
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
