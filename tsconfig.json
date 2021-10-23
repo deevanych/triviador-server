@@ -30,6 +30,9 @@
       "@adonisjs/repl",
       "@adonisjs/lucid",
       "@adonisjs/auth"
+    ],
+    "lib": [
+      "dom"
     ]
   }
 }
