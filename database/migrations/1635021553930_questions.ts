@@ -7,7 +7,7 @@ export default class Questions extends BaseSchema {
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.string('text').comment('Question text')
+      table.string('text').unique().comment('Question text')
       table.string('question_type').defaultTo(EXTENDED_TYPE)
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
