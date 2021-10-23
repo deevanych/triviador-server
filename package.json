@@ -28,6 +28,7 @@
     "@adonisjs/lucid": "^16.2.1",
     "@adonisjs/repl": "^3.1.6",
     "@types/socket.io": "^3.0.2",
+    "axios": "^0.23.0",
     "luxon": "^2.0.2",
     "mysql": "^2.18.1",
     "node-html-parser": "^5.0.0",
