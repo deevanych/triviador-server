@@ -27,9 +27,10 @@ export default class User extends BaseModel implements UserInterface {
 
   @afterFetch()
   public static async afterFetchHook(users: User[]) {
-    users.forEach((user) => {
-      user.load('matches')
+    await Promise.all(users.map((user) => {
+      return user.load('matches')
     })
+    )
   }
 
   @column({ isPrimary: true })

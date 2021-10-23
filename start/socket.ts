@@ -54,15 +54,19 @@ Ws.io
         Ws.io.emit('serverInfo', getData(Ws.io))
       })
 
-      socket.on('getMatchData', async () => {
-        let match = await socket.user.activeMatch
-        if (typeof match === 'undefined') {
-          socket.emit('goToLobby')
-          return false
-        }
+      socket.on('getMatchData', () => {
+        User.findOrFail(socket.user.id).then((user: User) => {
+          const match = user.activeMatch
+          socket.user = user
+          if (typeof match === 'undefined') {
+            socket.emit('goToLobby')
+            return false
+          }
 
-        match = await Match.findOrFail(match.id)
-        socket.emit('matchData', match)
+          Match.findOrFail(match.id).then((data: Match) => {
+            socket.emit('matchData', data)
+          })
+        })
       })
 
       socket.on('leaveMatch', () => {
