@@ -15,7 +15,7 @@ export default class Question extends BaseModel {
   public updatedAt: DateTime
 
   @column()
-  public title: string
+  public text: string
 
   @column()
   public type: string
