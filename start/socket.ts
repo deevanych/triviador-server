@@ -55,13 +55,13 @@ Ws.io
       })
 
       socket.on('getMatchData', async () => {
-        const match = await socket.user.activeMatch
-        console.log(match)
+        let match = await socket.user.activeMatch
         if (typeof match === 'undefined') {
           socket.emit('goToLobby')
           return false
         }
 
+        match = await Match.findOrFail(match.id)
         socket.emit('matchData', match)
       })
 

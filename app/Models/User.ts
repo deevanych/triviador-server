@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { afterFind, BaseModel, column, computed, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import { afterFetch, afterFind, BaseModel, column, computed, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import Match from 'App/Models/Match'
 import { LOSE_POINTS_AMOUNT } from 'App/Models/UserMatch'
 
@@ -23,6 +23,13 @@ export default class User extends BaseModel implements UserInterface {
   @afterFind()
   public static async afterFindHook(user: User) {
     await user.load('matches')
+  }
+
+  @afterFetch()
+  public static async afterFetchHook(users: User[]) {
+    users.forEach((user) => {
+      user.load('matches')
+    })
   }
 
   @column({ isPrimary: true })
@@ -57,6 +64,10 @@ export default class User extends BaseModel implements UserInterface {
 
   @computed()
   public get rating(): number {
+    if (typeof this.matches === 'undefined') {
+      return INITIAL_RATING
+    }
+
     return this.matches.reduce((sum: number, match: Match) => {
       return sum + match.$extras.pivot_amount
     }, INITIAL_RATING)
@@ -64,6 +75,10 @@ export default class User extends BaseModel implements UserInterface {
 
   @computed()
   public get activeMatch(): Match | undefined {
+    if (typeof this.matches === 'undefined') {
+      return undefined
+    }
+
     return this.matches.find((match: Match): boolean => match.$extras.pivot_in_match)
   }
 
