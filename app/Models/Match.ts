@@ -31,4 +31,9 @@ export default class Match extends BaseModel {
   public get getUsers(): User[] {
     return this.users
   }
+
+  @computed()
+  public get getRoom(): string {
+    return `match#${ this.id }`
+  }
 }

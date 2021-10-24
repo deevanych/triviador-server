@@ -38,8 +38,7 @@ Ws.io
       socket.user = user
 
       if (user.isInMatch) {
-        const match = socket.user.activeMatch
-        socket.emit('goToActiveMatch', match)
+        socket.emit('goToActiveMatch')
       }
 
       socket.on('startGameSearch', () => {
@@ -52,6 +51,16 @@ Ws.io
         socket.leave(findGameRoomTitle)
         socket.emit('gameSearchStopped')
         Ws.io.emit('serverInfo', getData(Ws.io))
+      })
+
+      socket.on('connectToMatch', () => {
+        const match = socket.user.activeMatch as Match
+        Ws.io.to(match.getRoom).emit('matchEvent', {
+          type: 'userConnected',
+          userId: socket.user.id,
+        })
+        socket.join(match.getRoom)
+        socket.emit('startGame')
       })
 
       socket.on('getMatchData', () => {
@@ -67,6 +76,16 @@ Ws.io
             socket.emit('matchData', data)
           })
         })
+      })
+
+      socket.on('disconnect', () => {
+        if (socket.user.isInMatch) {
+          const match = socket.user.activeMatch as Match
+          Ws.io.to(match.getRoom).emit('matchEvent', {
+            type: 'userDisconnected',
+            userId: socket.user.id,
+          })
+        }
       })
 
       socket.on('leaveMatch', () => {

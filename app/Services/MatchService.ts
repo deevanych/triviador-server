@@ -3,7 +3,7 @@ import { SocketExtended } from '../../start/socket'
 import Match from 'App/Models/Match'
 
 export const findGameRoomTitle = 'findGameRoom'
-const ratingMatchPlayersCount = 1
+const ratingMatchPlayersCount = 2
 
 export class MatchService {
   public static matchmakingSelection = () => {
@@ -22,7 +22,7 @@ export class MatchService {
           readyUsers.forEach((socket) => {
             socket.leave(findGameRoomTitle)
             match.related('users').attach([socket.user.id])
-            socket.join(`match#${ match.id }`)
+            socket.join(match.getRoom)
             socket.emit('startGame')
           })
         })
