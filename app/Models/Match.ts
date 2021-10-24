@@ -41,7 +41,6 @@ export default class Match extends BaseModel {
     try {
       this.isCompleted = true
       const result = await this.save()
-      console.log(result)
 
       return result
     } catch (e) {

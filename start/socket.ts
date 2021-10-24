@@ -111,11 +111,8 @@ Ws.io
         user.leaveMatch()
         const match = user.activeMatch as Match
         const roomPlayersCount = Ws.io.sockets.adapter.rooms.get(match?.getRoom)?.size
-        console.log('roomPlayersCount', roomPlayersCount)
         if (roomPlayersCount === undefined) {
-          match.setCompleted().then((data) => {
-            console.log(data)
-          })
+          match.setCompleted().then(r => r)
         }
 
         Ws.io.emit('serverInfo', getData(Ws.io))
