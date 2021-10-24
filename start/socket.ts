@@ -35,10 +35,10 @@ Ws.io
 
     Ws.io.emit('serverInfo', getData(Ws.io))
 
-    if (token !== null && activeUsers.hasOwnProperty(token)) {
-      socket.emit('gameCopyAlreadyOpen')
-      socket.disconnect()
-    }
+    // if (token !== null && activeUsers.hasOwnProperty(token)) {
+    //   socket.emit('gameCopyAlreadyOpen')
+    //   socket.disconnect()
+    // }
 
     getUserByToken(token).then((user: User) => {
       if (!activeUsers.hasOwnProperty(token))
@@ -107,14 +107,16 @@ Ws.io
         Ws.io.emit('serverInfo', getData(Ws.io))
       })
 
-      socket.on('leaveMatch', () => {
-        user.leaveMatch()
+      socket.on('leaveMatch', async () => {
+        await user.leaveMatch()
         const match = user.activeMatch as Match
         const roomPlayersCount = Ws.io.sockets.adapter.rooms.get(match?.getRoom)?.size
         if (roomPlayersCount === undefined) {
           match.setCompleted().then(r => r)
         }
 
+        user = await User.findOrFail(socket.user.id)
+        socket.emit('userUpdate', user)
         Ws.io.emit('serverInfo', getData(Ws.io))
       })
     }).catch(() => {

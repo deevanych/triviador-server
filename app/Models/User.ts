@@ -88,8 +88,8 @@ export default class User extends BaseModel implements UserInterface {
     return typeof this.activeMatch !== 'undefined'
   }
 
-  public leaveMatch(): void {
-    this.activeMatch?.related('users').sync({
+  public async leaveMatch(): Promise<void> {
+    await this.activeMatch?.related('users').sync({
       [this.id]: {
         in_match: false,
         amount: LOSE_POINTS_AMOUNT,
