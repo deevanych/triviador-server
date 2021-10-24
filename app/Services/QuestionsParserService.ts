@@ -64,7 +64,7 @@ export class QuestionsParserService {
       let questionText = trim(question.querySelector('td:nth-of-type(2)')?.text as string)
       questionText = trim(questionText.split('Ответы')[0])
       const existsQuestion = await Question.findBy('text', questionText)
-      console.log(questionText)
+
       if (existsQuestion === null) {
         const questionInstance = await Question.create(
           {
