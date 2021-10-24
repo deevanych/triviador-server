@@ -7,7 +7,7 @@ export default class Answers extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('text').comment('Answer text')
-      table.boolean('is_right').defaultTo(false).comment('Is variant is right')
+      table.boolean('is_right').defaultTo(false).comment('If variant is right')
       table
         .integer('question_id')
         .unsigned()
