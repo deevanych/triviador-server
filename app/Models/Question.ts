@@ -18,5 +18,5 @@ export default class Question extends BaseModel {
   public text: string
 
   @column()
-  public type: string
+  public question_type: string
 }
