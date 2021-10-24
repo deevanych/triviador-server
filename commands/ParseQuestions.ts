@@ -34,8 +34,12 @@ export default class ParseQuestions extends BaseCommand {
   public test = false
 
   public async run () {
-    if (this.test) {
-      await QuestionsParserService.parser(this.basic)
+    if (this.basic) {
+      try {
+        await QuestionsParserService.parser(this.basic)
+      } catch (e) {
+        console.log(e)
+      }
     } else {
       let recurringQuestionsInRowCount = 0
       let i = 0
