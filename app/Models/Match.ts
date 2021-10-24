@@ -36,4 +36,16 @@ export default class Match extends BaseModel {
   public get getRoom(): string {
     return `match#${ this.id }`
   }
+
+  public async setCompleted() {
+    try {
+      this.isCompleted = true
+      const result = await this.save()
+      console.log(result)
+
+      return result
+    } catch (e) {
+      throw e
+    }
+  }
 }
