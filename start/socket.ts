@@ -15,7 +15,7 @@ const activeUsers: {[key: string]: string} = {}
 
 const getData = (io) => {
   return {
-    playersCount: io.engine.clientsCount,
+    playersCount: Object.keys(activeUsers).length,
     lookingForGamePlayersCount: io.sockets.adapter.rooms.get(findGameRoomTitle)?.size ?? 0,
   }
 }
