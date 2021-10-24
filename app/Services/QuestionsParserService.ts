@@ -2,12 +2,17 @@ import axios from 'axios'
 import { parse } from 'node-html-parser'
 import Question from 'App/Models/Question'
 import Answer from 'App/Models/Answer'
+import { Error } from 'memfs/lib/internal/errors'
 
 const SITE_URL = 'baza-otvetov.ru'
 const SITE_PATH = '/quiz/ask'
 const SITE_ANSWER_CHECK = '/quiz/check'
 
 export class QuestionsParserService {
+  private static error() {
+    throw new Error('duplicate')
+  }
+
   static async run() {
     try {
       const questionHtml = await axios.get(`https://${SITE_URL}${SITE_PATH}`, {
@@ -19,6 +24,11 @@ export class QuestionsParserService {
       const html = parse(questionHtml.data as string)
       const question = html.querySelector('.q_id')
       const questionText = question?.text
+      const existQuestion = await Question.findBy('text', questionText)
+
+      if (existQuestion !== null)
+        return this.error()
+
       const questionInstance = await Question.create(
         {
           text: questionText,

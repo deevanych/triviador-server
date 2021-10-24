@@ -38,6 +38,9 @@ export default class ParseQuestions extends BaseCommand {
         recurringQuestionsInRowCount = 0
         console.log(`Вопросов пёрнуто: ${i}`)
       } catch (e) {
+        if (e.message !== 'An invalid error message key was used: duplicate.')
+          return false
+
         recurringQuestionsInRowCount++
         console.log(`Количество повторяющихся вопросов подряд: ${recurringQuestionsInRowCount}`)
       }
