@@ -90,7 +90,6 @@ Ws.io
 
         await match.load('users')
         await match.load('stages')
-        console.log(match.stages)
 
         socket.emit('matchData', match)
 
