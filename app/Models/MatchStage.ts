@@ -1,7 +1,19 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
-export default class MatchStage extends BaseModel {
+export const INITIAL_TYPE = 'initial'
+export const DEFINING_TYPE = 'defining'
+export const PLAYER_TURN_TYPE = 'player'
+
+export const DEFINING_ROUND_COUNT = 6
+
+export interface MatchStageInterface {
+  userId?: number,
+  matchId: number,
+  type?: string
+}
+
+export default class MatchStage extends BaseModel implements MatchStageInterface {
   @column({ isPrimary: true })
   public id: number
 
@@ -13,6 +25,9 @@ export default class MatchStage extends BaseModel {
 
   @column()
   public matchId: number
+
+  @column()
+  public type: string
 
   @column()
   public userId: number

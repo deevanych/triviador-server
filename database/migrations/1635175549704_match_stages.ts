@@ -1,4 +1,5 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
+import { PLAYER_TURN_TYPE } from 'App/Models/MatchStage'
 
 export default class MatchStages extends BaseSchema {
   protected tableName = 'match_stages'
@@ -11,11 +12,14 @@ export default class MatchStages extends BaseSchema {
         .unsigned()
         .references('users.id')
         .onDelete('CASCADE')
+        .nullable()
       table
         .integer('match_id')
         .unsigned()
         .references('matches.id')
         .onDelete('CASCADE')
+        .notNullable()
+      table.string('type').defaultTo(PLAYER_TURN_TYPE)
       table.boolean('is_passed').defaultTo(false)
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
