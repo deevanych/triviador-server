@@ -20,6 +20,8 @@ export class MatchService {
       const match = await new Match().save()
       const readyUsersIds = readyUsers.map((socket) => socket.user.id)
       await match.related('users').attach(readyUsersIds)
+      await match.load('users')
+      await match.generateStages()
 
       for (let socket of readyUsers) {
         socket.leave(findGameRoomTitle)
