@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { parse } from 'node-html-parser'
-import Question, { BASIC_TYPE } from 'App/Models/Question'
+import Question, { BASIC_TYPE, EXTENDED_TYPE } from 'App/Models/Question'
 import Answer from 'App/Models/Answer'
 import { Error } from 'memfs/lib/internal/errors'
 import validator from 'validator'
@@ -11,8 +11,7 @@ const QUIZ_PATH = '/quiz/ask'
 const CATEGORIES_PATH = '/categories'
 const SITE_ANSWER_CHECK = '/quiz/check'
 
-const BASIC_QUESTION_REGEX = /^([+|\-]?\d+)$/gm
-let QUESTION_PARSED_COUNT = 0
+let QUESTIONS_PARSED_COUNT = 0
 
 export class QuestionsParserService {
   private static error() {
@@ -44,6 +43,32 @@ export class QuestionsParserService {
     }
   }
 
+  private static async createQuestion(text: string, answers: string[], rightAnswer = '') {
+    try {
+      const type = answers.length === 1 ? BASIC_TYPE : EXTENDED_TYPE
+      const questionInstance = await Question.create(
+        {
+          text,
+          type,
+        },
+      )
+
+      for (let answer of answers) {
+        let isRight = true
+        if (answers.length !== 1)
+          isRight = answer === rightAnswer
+
+        await Answer.create({
+          text: answer,
+          isRight,
+          questionId: questionInstance.id,
+        })
+      }
+    } catch (e) {
+      throw e
+    }
+  }
+
   private static async getQuestions(url: string): Promise<void> {
     const questionsRequest = await axios.get(`https://${SITE_URL}${url}`, {
       headers: {
@@ -56,30 +81,43 @@ export class QuestionsParserService {
     const questionsElements = html.querySelectorAll('.tooltip')
 
     for (let question of questionsElements) {
-      const answer = trim(question.querySelector('td:nth-of-type(3)')?.text as string)
+      const rightAnswer = trim(question.querySelector('td:nth-of-type(3)')?.text as string)
+      const questionText = trim(question.querySelector('td:nth-of-type(2) > a')?.text as string)
+      const answersBlock = question.querySelector('td:nth-of-type(2) > .q-list__quiz-answers')
+      const ifAnswerIsNumber = Number.isInteger(+rightAnswer)
+      let answers: string[] = []
 
-      if (!BASIC_QUESTION_REGEX.test(answer))
+      if (!ifAnswerIsNumber && answersBlock === null)
         continue
 
-      let questionText = trim(question.querySelector('td:nth-of-type(2)')?.text as string)
-      questionText = trim(questionText.split('Ответы')[0])
-      const existsQuestion = await Question.findBy('text', questionText)
+      if (answersBlock !== null) {
+        const answersText = trim(answersBlock?.text.split('Ответы для викторин: ')[1])
+        answers = answersText.split(', ')
+      }
 
-      if (existsQuestion === null) {
-        const questionInstance = await Question.create(
-          {
-            text: questionText,
-            question_type: BASIC_TYPE,
-          },
-        )
+      answers.push(rightAnswer)
+      if (ifAnswerIsNumber) {
+        let existsQuestion = await Question.query()
+          .where('text', questionText)
+          .where('type', BASIC_TYPE)
+          .first()
 
-        await Answer.create({
-          text: answer,
-          isRight: true,
-          questionId: questionInstance.id,
-        })
+        if (existsQuestion === null) {
+          await this.createQuestion(questionText, [rightAnswer], rightAnswer)
+          console.log(`Пёрнуто вопросов: ${++QUESTIONS_PARSED_COUNT}`)
+        }
+      }
 
-        console.log(`Вопросов пёрнуто: ${QUESTION_PARSED_COUNT++}`)
+      if (answers.length === 4) {
+        const existsQuestion = await Question.query()
+          .where('text', questionText)
+          .where('type', EXTENDED_TYPE)
+          .first()
+
+        if (existsQuestion === null) {
+          await this.createQuestion(questionText, answers, rightAnswer)
+          console.log(`Пёрнуто вопросов: ${++QUESTIONS_PARSED_COUNT}`)
+        }
       }
     }
 
@@ -97,8 +135,11 @@ export class QuestionsParserService {
 
       const html = parse(questionHtml.data as string)
       const question = html.querySelector('.q_id')
-      const questionText = question?.text
-      const existsQuestion = await Question.findBy('text', questionText)
+      const questionText = trim(question?.text as string)
+      const existsQuestion = await Question.query()
+        .where('text', questionText)
+        .where('type', BASIC_TYPE)
+        .first()
 
       if (existsQuestion !== null)
         return this.error()
