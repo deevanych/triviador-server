@@ -25,5 +25,9 @@ declare module '@ioc:Adonis/Core/Event' {
   | an instance of the the UserModel only.
   |
   */
-  interface EventsList {}
+  import Match from 'App/Models/Match'
+
+  interface EventsList {
+    'new:match': Match
+  }
 }
