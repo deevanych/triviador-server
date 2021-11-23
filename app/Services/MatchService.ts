@@ -1,9 +1,12 @@
 import Ws from 'App/Services/Ws'
 import { SocketExtended } from '../../start/socket'
 import Match from 'App/Models/Match'
+import MatchBattle from 'App/Models/MatchBattle'
+import Question, { BASIC_TYPE } from 'App/Models/Question'
+import * as faker from 'faker'
 
 export const findGameRoomTitle = 'findGameRoom'
-const ratingMatchPlayersCount = 3
+const ratingMatchPlayersCount = 2
 
 export class MatchService {
   static matchmakingSelection = async () => {
@@ -29,5 +32,23 @@ export class MatchService {
         socket.emit('startGame')
       }
     }
+  }
+
+  // todo
+  static defining = async (match: Match) => {
+    const questions = await Question.query().where('type', BASIC_TYPE)
+    const randomQuestionIndex = faker.datatype.number({ min: 0, max: questions.length})
+    const battle = await MatchBattle.create({
+      'question_id': questions[randomQuestionIndex].id,
+      'match_id': match.id
+    })
+
+    await battle.related('users').attach(match.users.map((user) => user.id))
+    await battle.load('users')
+
+    Ws.io.to(match.getRoom).emit('matchEvent', {
+      type: 'battleStarted',
+      battle: battle
+    })
   }
 }
