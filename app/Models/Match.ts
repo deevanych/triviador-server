@@ -1,5 +1,16 @@
 import { DateTime } from 'luxon'
-import { afterFind, BaseModel, column, computed, hasMany, HasMany, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import Event from '@ioc:Adonis/Core/Event'
+import {
+  afterCreate,
+  afterFind,
+  BaseModel,
+  column,
+  computed,
+  hasMany,
+  HasMany,
+  ManyToMany,
+  manyToMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import User, { INITIAL_RATING } from 'App/Models/User'
 import MatchStage, {
   DEFINING_ROUND_COUNT,
@@ -12,6 +23,11 @@ export default class Match extends BaseModel {
   @afterFind()
   public static async afterFindHook(match: Match) {
     await match.load('users')
+  }
+
+  @afterCreate()
+  public static async afterCreateHook(match: Match) {
+    await Event.emit('new:match', match)
   }
 
   @column({ isPrimary: true })
