@@ -1,4 +1,4 @@
-import { BaseCommand, flags } from '@adonisjs/core/build/standalone'
+import { BaseCommand } from '@adonisjs/core/build/standalone'
 import { QuestionsParserService } from 'App/Services/QuestionsParserService'
 
 export default class ParseQuestions extends BaseCommand {
@@ -27,37 +27,11 @@ export default class ParseQuestions extends BaseCommand {
     stayAlive: true,
   }
 
-  @flags.boolean()
-  public basic = false
-
-  @flags.boolean()
-  public test = false
-
   public async run () {
-    if (this.basic) {
-      try {
-        await QuestionsParserService.parser(this.basic)
-      } catch (e) {
-        console.log(e)
-      }
-    } else {
-      let recurringQuestionsInRowCount = 0
-      let i = 0
-
-      while (recurringQuestionsInRowCount < 1000) {
-        try {
-          await QuestionsParserService.parser(this.basic)
-          i++
-          recurringQuestionsInRowCount = 0
-          console.log(`Вопросов пёрнуто: ${i}`)
-        } catch (e) {
-          if (e.message !== 'An invalid error message key was used: duplicate.')
-            return false
-
-          recurringQuestionsInRowCount++
-          console.log(`Количество повторяющихся вопросов подряд: ${recurringQuestionsInRowCount}`)
-        }
-      }
+    try {
+      await QuestionsParserService.parser()
+    } catch (e) {
+      console.log(e)
     }
 
     process.exit(1)

@@ -2,27 +2,17 @@ import axios from 'axios'
 import { parse } from 'node-html-parser'
 import Question, { BASIC_TYPE, EXTENDED_TYPE } from 'App/Models/Question'
 import Answer from 'App/Models/Answer'
-import { Error } from 'memfs/lib/internal/errors'
 import validator from 'validator'
 import trim = validator.trim
 
 const SITE_URL = 'baza-otvetov.ru'
-const QUIZ_PATH = '/quiz/ask'
 const CATEGORIES_PATH = '/categories'
-const SITE_ANSWER_CHECK = '/quiz/check'
 
 let QUESTIONS_PARSED_COUNT = 0
 
 export class QuestionsParserService {
-  private static error() {
-    throw new Error('duplicate')
-  }
-
-  public static async parser(isBasic = false) {
-    if (isBasic)
-      return await this.basicQuestionsParser()
-
-    return await this.extendedQuestionsParser()
+  public static async parser() {
+    return await this.QuestionsParser()
   }
 
   private static async getCategories(): Promise<string[]> {
@@ -125,62 +115,7 @@ export class QuestionsParserService {
       await this.getQuestions(nextPageUrl)
   }
 
-  static async extendedQuestionsParser(): Promise<void> {
-    try {
-      const questionHtml = await axios.get(`https://${SITE_URL}${QUIZ_PATH}`, {
-        headers: {
-          'x-requested-with': 'XMLHttpRequest',
-        },
-      })
-
-      const html = parse(questionHtml.data as string)
-      const question = html.querySelector('.q_id')
-      const questionText = trim(question?.text as string)
-      const existsQuestion = await Question.query()
-        .where('text', questionText)
-        .where('type', BASIC_TYPE)
-        .first()
-
-      if (existsQuestion !== null)
-        return this.error()
-
-      const questionInstance = await Question.create(
-        {
-          text: questionText,
-        },
-      )
-      const questionId = question?.getAttribute('id')
-      const answers = html.querySelectorAll('h4')
-      const form = new URLSearchParams({
-        q_id: questionId as string,
-      })
-      const answerHtml = await axios.post(
-        `https://${SITE_URL}${SITE_ANSWER_CHECK}`,
-        form,
-        {
-          headers: {
-            'x-requested-with': 'XMLHttpRequest',
-          },
-        },
-      )
-      const html2 = parse(answerHtml.data as string)
-      const rightAnswerBlock = html2.querySelector('h3 > span')?.text
-      const rightAnswer = rightAnswerBlock?.split('Правильный ответ: ')[1]
-
-      answers.forEach((answer) => {
-        const isRight = answer.text === rightAnswer
-        Answer.create({
-          text: answer.text,
-          isRight,
-          questionId: questionInstance.id,
-        })
-      })
-    } catch (e) {
-      throw e
-    }
-  }
-
-  static async basicQuestionsParser(): Promise<void> {
+  static async QuestionsParser(): Promise<void> {
     try {
       const categories = await this.getCategories()
 
