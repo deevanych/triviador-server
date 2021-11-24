@@ -1,7 +1,5 @@
 import { DateTime } from 'luxon'
-import Event from '@ioc:Adonis/Core/Event'
 import {
-  afterCreate,
   afterFind,
   BaseModel,
   column,
@@ -25,10 +23,10 @@ export default class Match extends BaseModel {
     await match.load('users')
   }
 
-  @afterCreate()
-  public static async afterCreateHook(match: Match) {
-    await Event.emit('new:match', match)
-  }
+  // @afterCreate()
+  // public static async afterCreateHook(match: Match) {
+  //   await Event.emit('new:match', match)
+  // }
 
   @column({ isPrimary: true })
   public id: number

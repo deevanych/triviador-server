@@ -4,9 +4,10 @@ import Match from 'App/Models/Match'
 import MatchBattle from 'App/Models/MatchBattle'
 import Question, { BASIC_TYPE } from 'App/Models/Question'
 import * as faker from 'faker'
+import Event from '@ioc:Adonis/Core/Event'
 
 export const findGameRoomTitle = 'findGameRoom'
-const ratingMatchPlayersCount = 2
+const ratingMatchPlayersCount = 1
 
 export class MatchService {
   static matchmakingSelection = async () => {
@@ -22,9 +23,11 @@ export class MatchService {
       const readyUsers = sortedSockets.splice(0, ratingMatchPlayersCount)
       const match = await new Match().save()
       const readyUsersIds = readyUsers.map((socket) => socket.user.id)
+      readyUsersIds.push(2)
       await match.related('users').attach(readyUsersIds)
       await match.load('users')
       await match.generateStages()
+      await Event.emit('new:match', match)
 
       for (let socket of readyUsers) {
         socket.leave(findGameRoomTitle)
@@ -37,18 +40,23 @@ export class MatchService {
   // todo
   static defining = async (match: Match) => {
     const questions = await Question.query().where('type', BASIC_TYPE)
-    const randomQuestionIndex = faker.datatype.number({ min: 0, max: questions.length})
+    const randomQuestionIndex = faker.datatype.number({ min: 0, max: questions.length - 1 })
     const battle = await MatchBattle.create({
       'question_id': questions[randomQuestionIndex].id,
       'match_id': match.id
     })
 
-    await battle.related('users').attach(match.users.map((user) => user.id))
+    await match.load('users')
+    await battle
+      .related('users')
+      .attach(match.users.map((user) => user.id))
     await battle.load('users')
 
-    Ws.io.to(match.getRoom).emit('matchEvent', {
-      type: 'battleStarted',
-      battle: battle
-    })
+    setTimeout(() => {
+      Ws.io.to(match.getRoom).emit('matchEvent', {
+        type: 'battleStarted',
+        battle: battle
+      })
+    }, 5000)
   }
 }

@@ -29,7 +29,7 @@ export default class Test extends BaseCommand {
   }
 
   public async run () {
-    const match = await Match.find(5)
+    const match = await Match.find(18)
     await MatchService.defining(match as Match)
   }
 }
